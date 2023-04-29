@@ -1,0 +1,24 @@
+/main
+.DS_Store
+run_remove.sh
+# 開発用Dockerfile
+Dockerfile.dev
+# テスト用や実験用のファイル
+*.test.*
+*.tmp.*
+*.swp
+# Goのビルドアーティファクト
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+# Goのプロファイル
+*.test
+*.out
+# Goの依存関係のファイル
+/vendor/
+/Godeps/
+
+
+

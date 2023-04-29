@@ -1,0 +1,19 @@
+{
+    "name": "Go Backend Dev Container",
+    "dockerComposeFile": "../../docker-compose.dev.yml",
+    "service": "backend",
+    "workspaceFolder": "/app",
+    "shutdownAction": "stopCompose",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "golang.go"
+            ],
+            "settings": {
+                "go.toolsManagement.autoUpdate": true,
+                "go.useLanguageServer": true,
+                "go.gopath": "/go"
+            }
+        }
+    }
+}
