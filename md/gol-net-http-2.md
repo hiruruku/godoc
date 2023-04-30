@@ -4,7 +4,7 @@ Go言語のhttpパッケージを使用して、簡単なHTTPサーバーを実�
 主に`http.Hanlde`インターフェース,`http.HandleFunc`,`http.ListenAndServe`の２つの関数と
 デフォルトマルチプレクサーについて説明します。
 
-## http.Handle インターフェース
+## http.Handler インターフェース
 
 net/httpパッケージ。ServerHttpを実装することを要求する。
 
@@ -13,7 +13,7 @@ type Handler interface {
     ServeHTTP(ResponseWriter, *Request)
 }
 ```
-http.Handlerタイプを実装する構造体,myHandler。
+http.Handlerインターフェースを実装する構造体,myHandler。
 ``` Golang
 type myHandler struct{}
 
@@ -28,12 +28,15 @@ func main() {
 }
 ```
 
-## http.HandleFunc
+## http.HandlerFunc
 
-`http.HandleFunc`は、http.Handlerインンターフェースを実装する関数型。
-func(http.ResponseWriter, *http.Request)型の関数を引数に取り、
-それをラップしてServeHTTPメソッドを持つ、関数型のインスタンスに変換する。
+`http.HandlerFunc`は、http.Handlerインンターフェースを実装する関数型。
+func(http.ResponseWriter, *http.Request)型の関数を引数にとるので、
+同じ引数を取る関数型を引数にとることで、関数をラップする。
+http.HandlerFunc(関数）のように、ラップされた関数は、
+http.Handlerインターフェースを実装したオブジェクトとして扱える。
 
+### 定義
 ``` Golang
 type HandlerFunc func(ResponseWriter, *Request)
 
@@ -41,16 +44,37 @@ func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
     f(w, r)
 }
 ```
+### 関数をラップしてhttp.Handleで登録
+
+``` Golang
+
+func hello(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprint(w, "Hello, world!")
+}
+
+func main() {
+    handler := http.HandlerFunc(hello) // helloをHandlerFuncでラップしたObject
+    http.Handle("/", handler)
+    http.ListenAndServe(":8080", nil)
+}
+```
+## http.Handle
 
 指定されたパターンと関連付けられたハンドラ関数をデフォルトマルチプレクサーに登録するためのメソッド。
 これにより、リクエストが特定のパターンに一致する場合に、対応するハンドラ関数が呼び出されます。
 
-``` go
-http.HandleFunc("/", hello)
-```
 - 上記の例では、ルートパス（"/"）が指定されたリクエストが来た場合、hello関数が呼び出されます。
   そして、このパスとハンドラーfunctionの対応づけは、デフォルトマルチプレクサーに登録されます。
 
+## http.HandleFunc
+
+Handleで、Handlerではありません。上の登録を簡潔に書けるメソッドです。
+内部で、http.HandlerFuncを使ってhelloをラップして、http.Handlerインターフェースを実装する
+オブジェクトとして扱っています。
+
+``` Golang
+    http.HandleFunc("/",hello)
+```
 
 
 ## http.ListenAndServe
@@ -62,7 +86,7 @@ http.ListenAndServeは、指定されたアドレスとポートでHTTPサーバ
 
 デフォルトマルチプレクサーは、Go言語のhttpパッケージで提供されるデフォルトのリクエストマルチプレクサーです。
 マルチプレクサーは、リクエストを適切なハンドラ関数にルーティングするためのコンポーネントで、
-http.HandleFuncを使って登録されたパターンとハンドラ関数のマッピングを管理します。
+http.HandleFuncなどを使って登録されたパターンとハンドラ関数のマッピングを管理します。
 
 デフォルトマルチプレクサーを使用する場合、http.ListenAndServeの第2引数にnilを渡します。
 これにより、登録されたハンドラ関数を自動的に呼び出してリクエストを処理できます。
